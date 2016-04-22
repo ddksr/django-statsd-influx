@@ -1,11 +1,17 @@
 import functools
 import time
+import socket
 
 from contextlib import contextmanager
 
 import statsd
 from django.conf import settings
 
+_hostname = 'unknown'
+try:
+    _hostname = socket.gethostname().replace('.', '-')
+except Exception:
+    pass
 
 _telegraf_client = None
 
@@ -19,12 +25,8 @@ def _get_client():
     return _telegraf_client
 
 
-def _get_source():
-    return settings.HOSTNAME.replace('.', '-')
-
-
 def _get_default_tags():
-    return [('host', _get_source())]
+    return [('host', _hostname)]
 
 
 def _get_tags(custom_tags):
@@ -39,7 +41,7 @@ def block_timer(name, **tags):
     yield
     new_name = '{prefix}.{name},{tags}'.format(
         prefix=settings.PROJECT_NAME,
-        source=_get_source(),
+        source=_hostname,
         name=name,
         tags=_get_tags(tags),
     )

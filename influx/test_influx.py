@@ -38,7 +38,7 @@ class InfluxHelperTestCase(TestCase):
             res['metric_value'] = v
 
         influx._telegraf_client.incr = incr
-        influx._get_source = lambda: "my_host"
+        influx._hostname = "my_host"
 
         influx.incr('test.metric', 2, source='my_source', tag='tag1')
 
@@ -55,7 +55,7 @@ class InfluxHelperTestCase(TestCase):
             res['metric_value'] = v
 
         influx._telegraf_client.gauge = gauge
-        influx._get_source = lambda: "h"
+        influx._hostname = "h"
 
         influx.gauge('test.metric', 'v', source='my_source', tag='tag1')
 
@@ -72,7 +72,7 @@ class InfluxHelperTestCase(TestCase):
             res['metric_value'] = v
 
         influx._telegraf_client.timing = timing
-        influx._get_source = lambda: "h"
+        influx._hostname = "h"
 
         with influx.block_timer("test.metric", source='my_source', tag='tag1'):
             pass
@@ -87,7 +87,7 @@ class InfluxHelperTestCase(TestCase):
             res['metric_value'] = v
 
         influx._telegraf_client.timing = timing
-        influx._get_source = lambda: "h"
+        influx._hostname = "h"
 
         @influx.timer("test.metric", source='my_source', tag='tag1')
         def noop():
