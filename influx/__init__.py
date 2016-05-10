@@ -29,10 +29,14 @@ def _get_default_tags():
     return [('host', _hostname)]
 
 
+def _escape_tags(tag):
+    return tag.replace(':', '_')
+
+
 def _get_tags(custom_tags):
     tags = sorted(custom_tags.items(), key=lambda x: x[0]) + _get_default_tags()
 
-    return ','.join('{0}={1}'.format(k, v) for k, v in tags)
+    return ','.join('{0}={1}'.format(_escape_tags(k), _escape_tags(v)) for k, v in tags)
 
 
 @contextmanager
