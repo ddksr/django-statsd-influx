@@ -5,7 +5,13 @@ import socket
 from contextlib import contextmanager
 
 import statsd
-from django.conf import settings
+
+try:
+	from django.conf import settings
+except ImportError:
+	# On some projects, where django isn't used,
+	# settings are usually a separate module in the project
+	import settings
 
 _hostname = 'unknown'
 try:
