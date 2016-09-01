@@ -7,11 +7,11 @@ from contextlib import contextmanager
 import statsd
 
 try:
-	from django.conf import settings
+    from django.conf import settings
 except ImportError:
-	# On some projects, where django isn't used,
-	# settings are usually a separate module in the project
-	import settings
+    # On some projects, where django isn't used,
+    # settings are usually a separate module in the project
+    import settings
 
 _hostname = 'unknown'
 try:
@@ -21,6 +21,12 @@ except Exception:
 
 _telegraf_client = None
 
+def silent_fail(fn):
+    def inner(*args, **kwargs):
+        if not settings.STATSD_INFLUX_HOST:
+            return
+        return fn(*args, **kwargs)
+    return inner
 
 def _get_client():
     global _telegraf_client
@@ -45,6 +51,7 @@ def _get_tags(custom_tags):
     return ','.join('{0}={1}'.format(_escape_tags(k), _escape_tags(v)) for k, v in tags)
 
 
+@silent_fail
 @contextmanager
 def block_timer(name, **tags):
     start = time.time()
@@ -57,7 +64,7 @@ def block_timer(name, **tags):
     )
     _get_client().timing(new_name, int((time.time() - start) * 1000))
 
-
+@silent_fail
 def timer(name, **tags):
     def decorator(func):
         @functools.wraps(func)
@@ -68,7 +75,7 @@ def timer(name, **tags):
         return wrapper
     return decorator
 
-
+@silent_fail
 def incr(name, count, **tags):
     _get_client().incr('{prefix}.{name},{tags}'.format(
         prefix=settings.PROJECT_NAME,
@@ -76,7 +83,7 @@ def incr(name, count, **tags):
         tags=_get_tags(tags),
     ), count)
 
-
+@silent_fail
 def gauge(name, value, **tags):
     _get_client().gauge('{prefix}.{name},{tags}'.format(
         prefix=settings.PROJECT_NAME,
