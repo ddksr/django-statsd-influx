@@ -51,7 +51,6 @@ def _get_tags(custom_tags):
     return ','.join('{0}={1}'.format(_escape_tags(k), _escape_tags(v)) for k, v in tags)
 
 
-@silent_fail
 @contextmanager
 def block_timer(name, **tags):
     start = time.time()
@@ -64,7 +63,6 @@ def block_timer(name, **tags):
     )
     _get_client().timing(new_name, int((time.time() - start) * 1000))
 
-@silent_fail
 def timer(name, **tags):
     def decorator(func):
         @functools.wraps(func)
