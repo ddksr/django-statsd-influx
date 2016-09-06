@@ -69,6 +69,8 @@ def timer(name, **tags):
     def decorator(func):
         @functools.wraps(func)
         def wrapper(*args, **kwargs):
+            if not settings.STATSD_INFLUX_HOST:
+                return func(*args, **kwargs)
             with block_timer(name, **tags):
                 result = func(*args, **kwargs)
             return result
